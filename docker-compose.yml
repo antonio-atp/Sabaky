@@ -1,0 +1,36 @@
+# Local development infrastructure. Production uses managed services
+# (managed PostgreSQL, S3-compatible object storage, Redis, SMTP provider).
+services:
+  postgres:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: sabaky
+      POSTGRES_PASSWORD: sabaky_dev_password
+      POSTGRES_DB: sabaky
+    ports:
+      - "5432:5432"
+    volumes:
+      - sabaky_pg:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U sabaky"]
+      interval: 5s
+      retries: 10
+
+  # Optional: shared rate-limit / cache store for multi-instance deployments.
+  redis:
+    image: redis:7-alpine
+    profiles: ["full"]
+    ports:
+      - "6379:6379"
+
+  # Optional: catch-all SMTP server with a web UI at http://localhost:8025
+  mailpit:
+    image: axllent/mailpit:latest
+    profiles: ["full"]
+    ports:
+      - "1025:1025"
+      - "8025:8025"
+
+volumes:
+  sabaky_pg:

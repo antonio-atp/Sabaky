@@ -1,0 +1,27 @@
+import { clsx, type ClassValue } from "clsx";
+import { twMerge } from "tailwind-merge";
+
+export function cn(...inputs: ClassValue[]) {
+  return twMerge(clsx(inputs));
+}
+
+/** Build a query string from a record, dropping empty values. */
+export function qs(params: Record<string, string | number | boolean | string[] | null | undefined>) {
+  const sp = new URLSearchParams();
+  for (const [k, v] of Object.entries(params)) {
+    if (v === undefined || v === null || v === "" || v === false) continue;
+    if (Array.isArray(v)) v.forEach((x) => sp.append(k, x));
+    else sp.set(k, String(v));
+  }
+  const s = sp.toString();
+  return s ? `?${s}` : "";
+}
+
+export function initials(name: string) {
+  return name
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((p) => p[0]!.toUpperCase())
+    .join("");
+}
